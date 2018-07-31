@@ -10,4 +10,4 @@ knn text classification
 #2.根据输入的训练语料分词结果，产生ngram和skipgram的特征，基于此生成tfidf模型
 
 #3.对于测试集，进行分词，获取测试问句的tfidf表征，计算训练语料中与其最相似的topn问句，
-#根据topn问句的标签来预测测试问句的标签
+根据topn问句的标签来预测测试问句的标签
