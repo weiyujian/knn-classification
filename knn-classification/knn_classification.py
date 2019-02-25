@@ -93,21 +93,22 @@ def generate_model(data_list, stop_set=set([])):
         sent, seg = data_list[inx]
         text = get_ngram(seg, 2, stop_set)#bi_gram和skip_gram增强上下文信息
         texts.append(text.split(" "))
-    dictionary = corpora.Dictionary(texts)
+    dictionary = corpora.Dictionary(texts)#获取texts中所有词，作为词表，每个词会分配一个id，形成词袋模型
+    #Dictionary.keys()：word-id  Dictionary.values()：word 
     ret_list = []
     for text in texts:
-        freq_text = dictionary.doc2bow(text)#把所有语料转化为词袋（bag of words）
+        freq_text = dictionary.doc2bow(text)#把所有语料转化为bag of words，计算text中每个词对应的id以及出现的频率，返回稀疏矩阵（id,freq）
         ret_list.append(freq_text)
-    tfidf = models.TfidfModel(ret_list)#使用tf-idf 模型得出该数据集的tf-idf 模型
-    vect_list = tfidf[ret_list]#此处已经计算得出所有样本的tf-idf 值
-    index = similarities.SparseMatrixSimilarity(vect_list, num_features=len(dictionary.keys()), num_best=10)把所有样本做成索引
+    tfidf = models.TfidfModel(ret_list)#使用tf-idf模型得出该数据集的tf-idf 模型
+    vect_list = tfidf[ret_list]#此处已经计算得出所有样本的tf-idf值，即得到了每个样本的(id,tf-idf)
+    index = similarities.SparseMatrixSimilarity(vect_list, num_features=len(dictionary.keys()), num_best=10)#把所有样本做成索引，相似度查询，返回topn最相近的文档
     return tfidf,index,dictionary
 
 def get_top(index,tfidf,dictionary,train_list,seg,stop_set=set([])):
     text = get_ngram(seg,2,stop_set)
-    freq_text = dictionary.doc2bow(text.split(" "))#把测试语料转为词袋
-    vect = tfidf[freq_text]#直接使用之前得出的tf-idf 模型即可得出该条测试语料的tf-idf 值
-    sims = index[vect]#利用索引计算每一条训练样本和该测试样本之间的相似度
+    freq_text = dictionary.doc2bow(text.split(" "))#把测试语料转为词袋，得到[(id,freq),(id,freq)]
+    vect = tfidf[freq_text]#直接使用之前得出的tf-idf 模型即可得出该条测试语料的tf-idf 值,得到[(id,tf-idf),(id,tf-idf)]
+    sims = index[vect]#利用索引计算每一条训练样本和该测试样本之间的相似度，返回top n最相近的训练样本
     top_set = {}
     for inx,score in sims:
         if score <= 0:continue
