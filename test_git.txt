@@ -1,3 +1,0 @@
-这个是测试如何使用git的一个文本·
-
-测试如何 git clone。git commit·
