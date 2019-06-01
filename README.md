@@ -23,3 +23,5 @@ knn text classification
 #测试过程:
 
 #python knn_classification.py --model_version=knn_model_v3 --is_train=false --input_file=./data/cnews.test.knn_seg
+
+#test how to use git
